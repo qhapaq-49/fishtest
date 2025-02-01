@@ -716,7 +716,7 @@ def contributors_monthly(request):
 
 def get_master_info(url):
     headers = {
-        "Authorization": f"token {os.getenv('GITHUB_TOKEB')}",
+        "Authorization": f"token {os.getenv('GITHUB_TOKEN')}",
         "Accept": "application/vnd.github.v3+json"
     }
     try:
@@ -767,7 +767,7 @@ def get_sha(branch, repo_url):
     """Resolves the git branch to sha commit"""
     api_url = repo_url.replace("https://github.com", "https://api.github.com/repos")
     headers = {
-        "Authorization": f"token {os.getenv('GITHUB_TOKEB')}",
+        "Authorization": f"token {os.getenv('GITHUB_TOKEN')}",
         "Accept": "application/vnd.github.v3+json"
     }
     try:
@@ -783,7 +783,7 @@ def get_sha(branch, repo_url):
 def get_nets(commit_sha, repo_url):
     """Get the nets from evaluate.h or ucioption.cpp in the repo"""
     headers = {
-        "Authorization": f"token {os.getenv('GITHUB_TOKEB')}",
+        "Authorization": f"token {os.getenv('GITHUB_TOKEN')}",
         "Accept": "application/vnd.github.v3+json"
     }
     api_url = repo_url.replace(
@@ -948,7 +948,7 @@ def validate_form(request):
         )
         api_url += "/commits" + "/" + data["new_tag"]
         headers = {
-            "Authorization": f"token {os.getenv('GITHUB_TOKEB')}",
+            "Authorization": f"token {os.getenv('GITHUB_TOKEN')}",
             "Accept": "application/vnd.github.v3+json"
         }
         try:
@@ -1181,7 +1181,7 @@ def new_run_message(request, run):
 
 def get_master_sha(repo_url):
     headers = {
-        "Authorization": f"token {os.getenv('GITHUB_TOKEB')}",
+        "Authorization": f"token {os.getenv('GITHUB_TOKEN')}",
         "Accept": "application/vnd.github.v3+json"
     }
     try:

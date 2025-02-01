@@ -189,6 +189,7 @@ def cache_remove(cache, name):
 def requests_get(remote, *args, **kw):
     # A lightweight wrapper around requests.get()
     try:
+        # print("request", remote, args, kw)
         result = requests.get(remote, *args, **kw)
         result.raise_for_status()  # also catch return codes >= 400
     except Exception as e:
@@ -336,9 +337,13 @@ def fetch_validated_net(remote, testing_dir, net, global_cache):
     content = cache_read(global_cache, net)
 
     if content is None:
+        headers = {
+            "Authorization": f"token {os.getenv('GITHUB_TOKEN')}",
+            "Accept": "application/vnd.github.v3+json"
+        }
         url = f"{remote}/api/nn/{net}"
         print(f"Downloading {net}")
-        content = requests_get(url, allow_redirects=True, timeout=HTTP_TIMEOUT).content
+        content = requests_get(url, allow_redirects=True, timeout=HTTP_TIMEOUT, headers=headers).content
         if not is_valid_net(content, net):
             return False
         cache_write(global_cache, net, content)
@@ -484,9 +489,10 @@ def download_from_github_raw(
     item, owner="official-stockfish", repo="books", branch="master"
 ):
     headers = {
-        "Authorization": f"token {os.getenv('GITHUB_TOKEB')}",
+        "Authorization": f"token {os.getenv('GITHUB_TOKEN')}",
         "Accept": "application/vnd.github.v3+json"
     }
+    assert os.getenv('GITHUB_TOKEN') is not None
     item_url = "{}/{}/{}/{}/{}".format(RAWCONTENT_HOST, owner, repo, branch, item)
     print("Downloading {}".format(item_url))
     
@@ -497,7 +503,7 @@ def download_from_github_api(
     item, owner="official-stockfish", repo="books", branch="master"
 ):
     headers = {
-        "Authorization": f"token {os.getenv('GITHUB_TOKEB')}",
+        "Authorization": f"token {os.getenv('GITHUB_TOKEN')}",
         "Accept": "application/vnd.github.v3+json"
     }
     item_url = "{}/repos/{}/{}/contents/{}?ref={}".format(
@@ -505,7 +511,7 @@ def download_from_github_api(
     )
     print("Downloading {}".format(item_url))
     git_url = requests_get(item_url, timeout=HTTP_TIMEOUT, headers=headers).json()["git_url"]
-    return b64decode(requests_get(git_url, timeout=HTTP_TIMEOUT).json()["content"])
+    return b64decode(requests_get(git_url, timeout=HTTP_TIMEOUT, headers=headers).json()["content"])
 
 
 def download_from_github(
@@ -741,7 +747,11 @@ def setup_engine(
         if blob is None:
             item_url = github_api(repo_url) + "/zipball/" + sha
             print("Downloading {}".format(item_url))
-            blob = requests_get(item_url).content
+            headers = {
+                "Authorization": f"token {os.getenv('GITHUB_TOKEN')}",
+                "Accept": "application/vnd.github.v3+json"
+            }
+            blob = requests_get(item_url, headers=headers).content
             blob_needs_write = True
         else:
             blob_needs_write = False
