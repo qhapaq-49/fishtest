@@ -715,8 +715,12 @@ def contributors_monthly(request):
 
 
 def get_master_info(url):
+    headers = {
+        "Authorization": f"token {os.getenv('GITHUB_TOKEB')}",
+        "Accept": "application/vnd.github.v3+json"
+    }
     try:
-        response = requests.get(url)
+        response = requests.get(url, headers=headers)
         response.raise_for_status()
     except Exception as e:
         print(f"Exception getting commits:\n{e}")
@@ -762,8 +766,12 @@ def get_valid_books():
 def get_sha(branch, repo_url):
     """Resolves the git branch to sha commit"""
     api_url = repo_url.replace("https://github.com", "https://api.github.com/repos")
+    headers = {
+        "Authorization": f"token {os.getenv('GITHUB_TOKEB')}",
+        "Accept": "application/vnd.github.v3+json"
+    }
     try:
-        commit = requests.get(api_url + "/commits/" + branch).json()
+        commit = requests.get(api_url + "/commits/" + branch, headers=headers).json()
     except:
         raise Exception("Unable to access developer repository")
     if "sha" in commit:
@@ -774,6 +782,10 @@ def get_sha(branch, repo_url):
 
 def get_nets(commit_sha, repo_url):
     """Get the nets from evaluate.h or ucioption.cpp in the repo"""
+    headers = {
+        "Authorization": f"token {os.getenv('GITHUB_TOKEB')}",
+        "Accept": "application/vnd.github.v3+json"
+    }
     api_url = repo_url.replace(
         "https://github.com", "https://raw.githubusercontent.com"
     )
@@ -782,7 +794,7 @@ def get_nets(commit_sha, repo_url):
         pattern = re.compile("nn-[a-f0-9]{12}.nnue")
 
         url1 = api_url + "/" + commit_sha + "/src/evaluate.h"
-        options = requests.get(url1).content.decode("utf-8")
+        options = requests.get(url1, headers=headers).content.decode("utf-8")
         for line in options.splitlines():
             if "EvalFileDefaultName" in line and "define" in line:
                 m = pattern.search(line)
@@ -793,7 +805,7 @@ def get_nets(commit_sha, repo_url):
             return nets
 
         url2 = api_url + "/" + commit_sha + "/src/ucioption.cpp"
-        options = requests.get(url2).content.decode("utf-8")
+        options = requests.get(url2, headers=headers).content.decode("utf-8")
         for line in options.splitlines():
             if "EvalFile" in line and "Option" in line:
                 m = pattern.search(line)
@@ -935,8 +947,12 @@ def validate_form(request):
             "https://github.com", "https://api.github.com/repos"
         )
         api_url += "/commits" + "/" + data["new_tag"]
+        headers = {
+            "Authorization": f"token {os.getenv('GITHUB_TOKEB')}",
+            "Accept": "application/vnd.github.v3+json"
+        }
         try:
-            c = requests.get(api_url).json()
+            c = requests.get(api_url, headers=headers).json()
         except:
             raise Exception("Unable to access developer repository")
         if "commit" not in c:
@@ -1164,9 +1180,13 @@ def new_run_message(request, run):
 
 
 def get_master_sha(repo_url):
+    headers = {
+        "Authorization": f"token {os.getenv('GITHUB_TOKEB')}",
+        "Accept": "application/vnd.github.v3+json"
+    }
     try:
         repo_url += "/commits/master"
-        response = requests.get(repo_url).json()
+        response = requests.get(repo_url, headers=headers).json()
         if "commit" not in response:
             raise Exception("Cannot find branch in repository")
         return response["sha"]

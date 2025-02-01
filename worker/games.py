@@ -483,19 +483,28 @@ def verify_signature(engine, signature, active_cores):
 def download_from_github_raw(
     item, owner="official-stockfish", repo="books", branch="master"
 ):
+    headers = {
+        "Authorization": f"token {os.getenv('GITHUB_TOKEB')}",
+        "Accept": "application/vnd.github.v3+json"
+    }
     item_url = "{}/{}/{}/{}/{}".format(RAWCONTENT_HOST, owner, repo, branch, item)
     print("Downloading {}".format(item_url))
-    return requests_get(item_url, timeout=HTTP_TIMEOUT).content
+    
+    return requests_get(item_url, timeout=HTTP_TIMEOUT, headers=headers).content
 
 
 def download_from_github_api(
     item, owner="official-stockfish", repo="books", branch="master"
 ):
+    headers = {
+        "Authorization": f"token {os.getenv('GITHUB_TOKEB')}",
+        "Accept": "application/vnd.github.v3+json"
+    }
     item_url = "{}/repos/{}/{}/contents/{}?ref={}".format(
         API_HOST, owner, repo, item, branch
     )
     print("Downloading {}".format(item_url))
-    git_url = requests_get(item_url, timeout=HTTP_TIMEOUT).json()["git_url"]
+    git_url = requests_get(item_url, timeout=HTTP_TIMEOUT, headers=headers).json()["git_url"]
     return b64decode(requests_get(git_url, timeout=HTTP_TIMEOUT).json()["content"])
 
 

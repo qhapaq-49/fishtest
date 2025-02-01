@@ -3,6 +3,7 @@
 import bz2
 
 import requests
+import os
 from bson.binary import Binary
 from pymongo import ASCENDING, MongoClient
 
